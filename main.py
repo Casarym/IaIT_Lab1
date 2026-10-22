@@ -36,7 +36,7 @@ class Vychislyator():
             new_expression = "".join(expression)
             flag = False
             for i in re.findall(r"tan\([^)(]+\)", new_expression):
-                new_expression = new_expression.replace(i, str(self.base_characters("t"+str(self.splitter(i[4:-1])))))
+                new_expression = new_expression.replace(i, str(self.base_characters("t"+str(float(self.splitter(i[4:-1]))))))
             if re.search(r"tan\([^)(]+\)", new_expression) is not None:
                 flag = True
 
@@ -46,7 +46,7 @@ class Vychislyator():
                     onlyone = onlyone.group()
                     new_expression = new_expression.replace(onlyone,onlyone[1:-1])
                 else:
-                    new_expression = new_expression.replace(i, str(self.splitter(i[1:-1])))
+                    new_expression = new_expression.replace(i, str(float(self.splitter(i[1:-1]))))
             if re.search(r"\([^)(]+\)", new_expression) is not None:
                 flag = True
 
@@ -61,6 +61,7 @@ class Vychislyator():
                 new_expression = new_expression.replace(i, str(self.base_characters(i)))
             if re.search(rf"{pat_num}\|{pat_num}", new_expression) is not None:
                 flag = True
+
 
             if flag:
                 new_expression = self.splitter(new_expression)
@@ -162,15 +163,15 @@ class Interface:
 
             elif (text == "-" and ((self.timed == "") or (self.expression[-1] in sign))) or text in digit:
                 self.timed += text
-            elif text in sign:
+            elif (text in sign) or (self.timed != ""):
                 if self.timed != "":
                     self.list_expression.append(str(float(self.timed)))
                     self.timed = ""
                 self.list_expression.append(text)
+
 
 if __name__ == "__main__":
     root = ctk.CTk()
     app = Interface(root)
     vy = Vychislyator()
     root.mainloop()
-
