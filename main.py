@@ -31,7 +31,7 @@ class Vychislyator():
 
 
 
-    def splitter(self, expression): #Последовательность обнаружения: скобки, {*,%,/}, базовые знаки
+    def splitter(self, expression): 
         try:
             new_expression = "".join(expression)
             flag = False
