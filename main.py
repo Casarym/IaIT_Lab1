@@ -7,83 +7,83 @@ pat_filt_front = r"(?<![*/%])"
 pat_filt_back = r"(?![*/%])"
 pat_filt_front_2 = r"(?<![*/%+-])"
 pat_filt_back_2 = r"(?![*/%+-])"
-class vychislyator():
+class Vychislyator():
     def __init__(self): pass
 
-    def base_characters(self, equation : str):
-        new_equation = []
-        for i in range(len(equation)):
-            if equation[i] == "t":
-                new_equation = [float(equation[1:]),"t"]
-            if equation[i] in ["+", "-", "*", "/", "%", "|"] and i != 0:
-                new_equation = [float(equation[:i]),equation[i],float(equation[(i+1):])]
+    def base_characters(self, expression):
+        new_expression = []
+        for i in range(len(expression)):
+            if expression[i] == "t":
+                new_expression = [float(expression[1:]),"t"]
+            if expression[i] in ["+", "-", "*", "/", "%", "|"] and i != 0:
+                new_expression = [float(expression[:i]),expression[i],float(expression[(i+1):])]
                 break
         result = 0
-        match new_equation[1]:
-            case "*": result = new_equation[0] * new_equation[2]
-            case "/": result = new_equation[0] / new_equation[2]
-            case "+": result = new_equation[0] + new_equation[2]
-            case "-": result = new_equation[0] - new_equation[2]
-            case "%": result = new_equation[0] % new_equation[2]
-            case "|": result = round(new_equation[0]) | round(new_equation[2])
-            case "t": result = tan(new_equation[0])
+        match new_expression[1]:
+            case "*": result = new_expression[0] * new_expression[2]
+            case "/": result = new_expression[0] / new_expression[2]
+            case "+": result = new_expression[0] + new_expression[2]
+            case "-": result = new_expression[0] - new_expression[2]
+            case "%": result = new_expression[0] % new_expression[2]
+            case "|": result = round(new_expression[0]) | round(new_expression[2])
+            case "t": result = tan(new_expression[0])
         return result
 
 
 
-    def splitter(self, equation): #Последовательность обнаружения: скобки, {*,%,/}, базовые знаки
+    def splitter(self, expression): #Последовательность обнаружения: скобки, {*,%,/}, базовые знаки
         try:
-            new_equation = "".join(equation)
+            new_expression = "".join(expression)
             flag = False
-            for i in re.findall(r"tan\([^)(]+\)", new_equation):
-                new_equation = new_equation.replace(i, str(self.base_characters("t"+str(self.splitter(i[4:-1])))))
-            if re.search(r"tan\([^)(]+\)", new_equation) is not None:
+            for i in re.findall(r"tan\([^)(]+\)", new_expression):
+                new_expression = new_expression.replace(i, str(self.base_characters("t"+str(self.splitter(i[4:-1])))))
+            if re.search(r"tan\([^)(]+\)", new_expression) is not None:
                 flag = True
 
-            for i in re.findall(r"\([^)(]+\)", new_equation):
-                onlyone = re.search(rf"\({pat_num}\)", new_equation)
+            for i in re.findall(r"\([^)(]+\)", new_expression):
+                onlyone = re.search(rf"\({pat_num}\)", new_expression)
                 if onlyone is not None:
                     onlyone = onlyone.group()
-                    new_equation = new_equation.replace(onlyone,onlyone[1:-1])
+                    new_expression = new_expression.replace(onlyone,onlyone[1:-1])
                 else:
-                    new_equation = new_equation.replace(i, str(self.splitter(i[1:-1])))
-            if re.search(r"\([^)(]+\)", new_equation) is not None:
+                    new_expression = new_expression.replace(i, str(self.splitter(i[1:-1])))
+            if re.search(r"\([^)(]+\)", new_expression) is not None:
                 flag = True
 
-            for i in re.findall(rf"{pat_num}[/*%]{pat_num}", new_equation):
-                new_equation = new_equation.replace(i, str(self.base_characters(i)))
-            for i in re.findall(rf"{pat_filt_front}{pat_num}[+\-]{pat_num}{pat_filt_back}", new_equation):
-                new_equation = new_equation.replace(i, str(self.base_characters(i)))
-            if re.search(rf"{pat_num}[+\-*/%]{pat_num}", new_equation) is not None:
+            for i in re.findall(rf"{pat_num}[/*%]{pat_num}", new_expression):
+                new_expression = new_expression.replace(i, str(self.base_characters(i)))
+            for i in re.findall(rf"{pat_filt_front}{pat_num}[+\-]{pat_num}{pat_filt_back}", new_expression):
+                new_expression = new_expression.replace(i, str(self.base_characters(i)))
+            if re.search(rf"{pat_num}[+\-*/%]{pat_num}", new_expression) is not None:
                 flag = True
 
-            for i in re.findall(rf"{pat_filt_front_2}{pat_num}\|{pat_num}{pat_filt_back_2}" , new_equation):
-                new_equation = new_equation.replace(i, str(self.base_characters(i)))
-            if re.search(rf"{pat_num}\|{pat_num}", new_equation) is not None:
+            for i in re.findall(rf"{pat_filt_front_2}{pat_num}\|{pat_num}{pat_filt_back_2}" , new_expression):
+                new_expression = new_expression.replace(i, str(self.base_characters(i)))
+            if re.search(rf"{pat_num}\|{pat_num}", new_expression) is not None:
                 flag = True
 
             if flag:
-                new_equation = self.splitter(new_equation)
+                new_expression = self.splitter(new_expression)
 
-            if round(float(new_equation)) == float(new_equation):
-                return round(float(new_equation))
+            if round(float(new_expression)) == float(new_expression):
+                return round(float(new_expression))
             else:
-                return round(float(new_equation),3)
+                return round(float(new_expression),3)
         except Exception:
             return "Error"
 
 
 
-class Calculator:
+class Interface:
     def __init__(self, root):
         self.root = root
-        self.root.title("Calculator")
+        self.root.title("Калькулятор")
         self.root.geometry("400x550")
 
         self.input_text = ctk.StringVar()
         self.timed = ""
-        self.equation = ""
-        self.list_equation = []
+        self.expression = ""
+        self.list_expression = []
         self.num_color = ("#3a3a3a", "#2a2a2a")
         self.create_widgets()
 
@@ -141,35 +141,36 @@ class Calculator:
         if text == "UN" or text == "N":
             self.button_layout(text)
         else:
-            self.equation += text
-            self.input_text.set(self.equation)
+            self.expression += text
+            self.input_text.set(self.expression)
             digit = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."]
             sign = ["+", "−", "*", "%", "/", "(", ")", "tan(", "|"]
             if text == "⌫":
                 if self.timed != "":
                     self.timed = ""
                 else:
-                    self.list_equation = self.list_equation[:-1]
-                self.equation = self.equation[:-2]
-                self.input_text.set(self.equation)
+                    self.list_expression = self.list_expression[:-1]
+                self.expression = self.expression[:-2]
+                self.input_text.set(self.expression)
 
             elif text == "=":
-                self.list_equation.append(str(float(self.timed))) if self.timed != "" else None
-                self.input_text.set(vy.splitter(self.list_equation))
-                self.equation = ""
-                self.list_equation = []
+                self.list_expression.append(str(float(self.timed))) if self.timed != "" else None
+                self.input_text.set(vy.splitter(self.list_expression))
+                self.expression = ""
+                self.list_expression = []
                 self.timed = ""
 
-            elif (text == "-" and (self.equation == "" or self.equation[-1] in sign)) or text in digit:
+            elif (text == "-" and ((self.timed == "") or (self.expression[-1] in sign))) or text in digit:
                 self.timed += text
             elif text in sign:
                 if self.timed != "":
-                    self.list_equation.append(str(float(self.timed)))
+                    self.list_expression.append(str(float(self.timed)))
                     self.timed = ""
-                self.list_equation.append(text)
+                self.list_expression.append(text)
 
 if __name__ == "__main__":
     root = ctk.CTk()
-    app = Calculator(root)
-    vy = vychislyator()
+    app = Interface(root)
+    vy = Vychislyator()
     root.mainloop()
+
